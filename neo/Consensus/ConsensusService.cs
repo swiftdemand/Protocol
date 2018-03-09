@@ -181,8 +181,23 @@ namespace Neo.Consensus
                 lock (context)
                 {
                     if (payload.ValidatorIndex == context.MyIndex) return;
-                    if (payload.Version != ConsensusContext.Version || payload.PrevHash != context.PrevHash || payload.BlockIndex != context.BlockIndex)
+
+                    if (payload.Version != ConsensusContext.Version)
                         return;
+                    if (payload.PrevHash != context.PrevHash || payload.BlockIndex != context.BlockIndex)
+                    {
+                        // Request blocks
+
+                        if (Blockchain.Default?.Height + 1 < payload.BlockIndex)
+                        {
+                            Log($"chain sync: expected={payload.BlockIndex} current: {Blockchain.Default?.Height}");
+
+                            localNode.RequestGetBlocks();
+                        }
+
+                        return;
+                    }
+
                     if (payload.ValidatorIndex >= context.Validators.Length) return;
                     ConsensusMessage message;
                     try
@@ -308,6 +323,9 @@ namespace Neo.Consensus
                         context.NextConsensus = Blockchain.GetConsensusAddress(Blockchain.Default.GetValidators(transactions).ToArray());
                         context.Signatures[context.MyIndex] = context.MakeHeader().Sign(context.KeyPair);
                     }
+                    InvPayload invPayload = InvPayload.Create(InventoryType.TX, context.TransactionHashes);
+                    foreach (RemoteNode node in localNode.GetRemoteNodes())
+                        node.EnqueueMessage("inv", invPayload);
                     SignAndRelay(context.MakePrepareRequest());
                     timer.Change(TimeSpan.FromSeconds(Blockchain.SecondsPerBlock << (timer_view + 1)), Timeout.InfiniteTimeSpan);
                 }

@@ -35,6 +35,11 @@ namespace Neo.Implementations.Blockchains.LevelDB
         public override uint Height => current_block_height;
         public bool VerifyBlocks { get; set; } = true;
 
+        /// <summary>
+        /// Return true if haven't got valid handle
+        /// </summary>
+        public override bool IsDisposed => disposed;
+
         public LevelDBBlockchain(string path)
         {
             header_index.Add(GenesisBlock.Hash);
@@ -133,6 +138,18 @@ namespace Neo.Implementations.Blockchains.LevelDB
                     new_block_event.Set();
             }
             return true;
+        }
+
+        public void AddBlockDirectly(Block block)
+        {
+            if (block.Index == header_index.Count)
+            {
+                WriteBatch batch = new WriteBatch();
+                OnAddHeader(block.Header, batch);
+                db.Write(WriteOptions.Default, batch);
+            }
+            Persist(block);
+            OnPersistCompleted(block);
         }
 
         protected internal override void AddHeaders(IEnumerable<Header> headers)
