@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "neo", "neo\neo.csproj", "{36447A9B-0311-4D4D-A3D5-AECBE9C15BBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "protocol", "protocol\protocol.csproj", "{36447A9B-0311-4D4D-A3D5-AECBE9C15BBC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "neo.UnitTests", "neo.UnitTests\neo.UnitTests.csproj", "{5B783B30-B422-4C2F-AC22-187A8D1993F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{5B783B30-B422-4C2F-AC22-187A8D1993F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +24,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7856805D-8FEF-45A6-B518-C43D81176332}
 	EndGlobalSection
 EndGlobal

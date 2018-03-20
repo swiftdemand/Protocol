@@ -1,21 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Copyright>2015-2017 The Neo Project</Copyright>
+    <Copyright>SwiftDemand Contributors</Copyright>
     <AssemblyTitle>Neo</AssemblyTitle>
-    <Version>2.7.3</Version>
-    <Authors>The Neo Project</Authors>
+    <Version>1.0.0-alpha</Version>
+    <Authors>SwiftDemand Contributors</Authors>
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssemblyName>Neo</AssemblyName>
-    <PackageId>Neo</PackageId>
-    <PackageTags>NEO;AntShares;Blockchain;Smart Contract</PackageTags>
-    <PackageProjectUrl>https://github.com/neo-project/neo</PackageProjectUrl>
+    <AssemblyName>Protocol</AssemblyName>
+    <PackageId>SwiftProtocol</PackageId>
+    <PackageTags>Blockchain;SwiftDemand</PackageTags>
+    <PackageProjectUrl>https://github.com/swiftdemand/protocol</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/neo-project/neo.git</RepositoryUrl>
-    <RootNamespace>Neo</RootNamespace>
-    <Company>The Neo Project</Company>
-    <Description>Neo</Description>
+    <RepositoryUrl>https://github.com/swiftdemand/protocol.git</RepositoryUrl>
+    <RootNamespace>SwiftDemand</RootNamespace>
+    <Company>SwiftDemand</Company>
+    <Description></Description>
+    <PackageLicenseUrl>https://github.com/swiftdemand/protocol/blob/master/LICENSE</PackageLicenseUrl>
+    <Product>protocol</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
