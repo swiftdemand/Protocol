@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Copyright>SwiftDemand Contributors</Copyright>
-    <AssemblyTitle>Neo</AssemblyTitle>
+    <AssemblyTitle>Protocol</AssemblyTitle>
     <Version>1.0.0-alpha</Version>
     <Authors>SwiftDemand Contributors</Authors>
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
