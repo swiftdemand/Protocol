@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Copyright>SwiftDemand Contributors</Copyright>
     <AssemblyTitle>Protocol</AssemblyTitle>
-    <Version>1.0.1-alpha4</Version>
+    <Version>1.0.1-alpha5</Version>
     <Authors>SwiftDemand Contributors</Authors>
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
