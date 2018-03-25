@@ -17,12 +17,18 @@ namespace Neo
 
         public static Settings Default { get; private set; }
 
+        /// <summary>
+        /// Load default settings from `protocol.json`
+        /// </summary>
         static Settings()
         {
             IConfigurationSection section = new ConfigurationBuilder().AddJsonFile("protocol.json").Build().GetSection("ProtocolConfiguration");
             Default = new Settings(section);
         }
 
+        /// <summary>
+        /// Load settings from configuration section
+        /// </summary>
         public Settings(IConfigurationSection section)
         {
             this.Magic = uint.Parse(section.GetSection("Magic").Value);
@@ -33,6 +39,9 @@ namespace Neo
             this.SystemFee = section.GetSection("SystemFee").GetChildren().ToDictionary(p => (TransactionType)Enum.Parse(typeof(TransactionType), p.Key, true), p => Fixed8.Parse(p.Value));
         }
 
+        /// <summary>
+        /// Return value from subsection via selector or fallback to default if not available
+        /// </summary>
         public T GetValueOrDefault<T>(IConfigurationSection section, T defaultValue, Func<string, T> selector)
         {
             if (section.Value == null) return defaultValue;
