@@ -91,6 +91,10 @@ namespace Neo.Core
         }
 
         private Dictionary<CultureInfo, string> _names;
+
+        /// <summary>
+        /// Get name of asset by type or culture
+        /// </summary>
         public string GetName(CultureInfo culture = null)
         {
             if (AssetType == AssetType.GoverningToken) return "NEO";
@@ -171,6 +175,9 @@ namespace Neo.Core
             return json;
         }
 
+        /// <summary>
+        /// Return asset name
+        /// </summary>
         public override string ToString()
         {
             return GetName();
