@@ -10,33 +10,27 @@ namespace Neo.Core
 {
     public abstract class BlockBase : IVerifiable
     {
-        /// <summary>
-        /// 区块版本
-        /// </summary>
         public uint Version;
         /// <summary>
-        /// 前一个区块的散列值
+        /// Hash of the previous block
         /// </summary>
         public UInt256 PrevHash;
         /// <summary>
-        /// 该区块中所有交易的Merkle树的根
+        /// The Merkle tree root for all transactions in this block
         /// </summary>
         public UInt256 MerkleRoot;
-        /// <summary>
-        /// 时间戳
-        /// </summary>
         public uint Timestamp;
         /// <summary>
-        /// 区块高度
+        /// Block height
         /// </summary>
         public uint Index;
         public ulong ConsensusData;
         /// <summary>
-        /// 下一个区块的记账合约的散列值
+        /// Hash value of the accounting contract for the next block
         /// </summary>
         public UInt160 NextConsensus;
         /// <summary>
-        /// 用于验证该区块的脚本
+        /// Script to verify the block
         /// </summary>
         public Witness Script;
 
@@ -133,6 +127,9 @@ namespace Neo.Core
             return json;
         }
 
+        /// <summary>
+        /// Verify that the current block is valid
+        /// </summary>
         public bool Verify()
         {
             if (Hash == Blockchain.GenesisBlock.Hash) return true;
