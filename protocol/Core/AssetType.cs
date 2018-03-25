@@ -1,8 +1,5 @@
 ﻿namespace Neo.Core
 {
-    /// <summary>
-    /// 资产类别
-    /// </summary>
     public enum AssetType : byte
     {
         CreditFlag = 0x40,
