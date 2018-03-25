@@ -20,6 +20,9 @@ namespace Neo.Core
 
         public AccountState() { }
 
+        /// <summary>
+        /// Initialize account state with script hash
+        /// </summary>
         public AccountState(UInt160 hash)
         {
             this.ScriptHash = hash;
@@ -87,6 +90,9 @@ namespace Neo.Core
             }
         }
 
+        /// <summary>
+        /// Returns a JSON object of the account state containing `script_hash`, `frozen`, `votes`, and `balances` properties
+        /// </summary>
         public override JObject ToJson()
         {
             JObject json = base.ToJson();
