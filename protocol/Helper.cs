@@ -30,6 +30,9 @@ namespace Neo
                 : (w < 1 << 29 ? (w < 1 << 28 ? 28 : 29) : (w < 1 << 30 ? 30 : 31)))));
         }
 
+        /// <summary>
+        /// Determine the number of binary digits (bits) needed to represent an integer
+        /// </summary>
         internal static int GetBitLength(this BigInteger i)
         {
             byte[] b = i.ToByteArray();
@@ -50,6 +53,9 @@ namespace Neo
             throw new Exception();
         }
 
+        /// <summary>
+        /// Convert a hexadecimal string to a byte array
+        /// </summary>
         public static byte[] HexToBytes(this string value)
         {
             if (value == null || value.Length == 0)
@@ -87,6 +93,9 @@ namespace Neo
             return v;
         }
 
+        /// <summary>
+        /// Generate a random BigInteger of a specified size
+        /// </summary>
         internal static BigInteger NextBigInteger(this Random rand, int sizeInBits)
         {
             if (sizeInBits < 0)
@@ -102,6 +111,9 @@ namespace Neo
             return new BigInteger(b);
         }
 
+        /// <summary>
+        /// Generate a random BigInteger of a specified size
+        /// </summary>
         internal static BigInteger NextBigInteger(this RandomNumberGenerator rng, int sizeInBits)
         {
             if (sizeInBits < 0)

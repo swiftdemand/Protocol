@@ -9,20 +9,12 @@ using System.Linq;
 
 namespace Neo.Core
 {
-    /// <summary>
-    /// 区块或区块头
-    /// </summary>
     public class Block : BlockBase, IInventory, IEquatable<Block>
     {
-        /// <summary>
-        /// 交易列表
-        /// </summary>
         public Transaction[] Transactions;
 
         private Header _header = null;
-        /// <summary>
-        /// 该区块的区块头
-        /// </summary>
+
         public Header Header
         {
             get
@@ -44,13 +36,13 @@ namespace Neo.Core
             }
         }
 
-        /// <summary>
-        /// 资产清单的类型
-        /// </summary>
         InventoryType IInventory.InventoryType => InventoryType.Block;
 
         public override int Size => base.Size + Transactions.GetVarSize();
 
+        /// <summary>
+        /// Calculate the fee (exluding system fee) that is left over for all transactions
+        /// </summary>
         public static Fixed8 CalculateNetFee(IEnumerable<Transaction> transactions)
         {
             Transaction[] ts = transactions.Where(p => p.Type != TransactionType.MinerTransaction && p.Type != TransactionType.ClaimTransaction).ToArray();
@@ -60,10 +52,6 @@ namespace Neo.Core
             return amount_in - amount_out - amount_sysfee;
         }
 
-        /// <summary>
-        /// 反序列化
-        /// </summary>
-        /// <param name="reader">数据来源</param>
         public override void Deserialize(BinaryReader reader)
         {
             base.Deserialize(reader);
@@ -77,11 +65,6 @@ namespace Neo.Core
                 throw new FormatException();
         }
 
-        /// <summary>
-        /// 比较当前区块与指定区块是否相等
-        /// </summary>
-        /// <param name="other">要比较的区块</param>
-        /// <returns>返回对象是否相等</returns>
         public bool Equals(Block other)
         {
             if (ReferenceEquals(this, other)) return true;
@@ -89,16 +72,14 @@ namespace Neo.Core
             return Hash.Equals(other.Hash);
         }
 
-        /// <summary>
-        /// 比较当前区块与指定区块是否相等
-        /// </summary>
-        /// <param name="obj">要比较的区块</param>
-        /// <returns>返回对象是否相等</returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as Block);
         }
 
+        /// <summary>
+        /// Create block from a limited amount of bytes
+        /// </summary>
         public static Block FromTrimmedData(byte[] data, int index, Func<UInt256, Transaction> txSelector)
         {
             Block block = new Block();
@@ -116,27 +97,19 @@ namespace Neo.Core
             return block;
         }
 
-        /// <summary>
-        /// 获得区块的HashCode
-        /// </summary>
-        /// <returns>返回区块的HashCode</returns>
         public override int GetHashCode()
         {
             return Hash.GetHashCode();
         }
 
         /// <summary>
-        /// 根据区块中所有交易的Hash生成MerkleRoot
+        /// Generate the Merkle root based on the hashes for all transactions in the block
         /// </summary>
         public void RebuildMerkleRoot()
         {
             MerkleRoot = MerkleTree.ComputeRoot(Transactions.Select(p => p.Hash).ToArray());
         }
 
-        /// <summary>
-        /// 序列化
-        /// </summary>
-        /// <param name="writer">存放序列化后的数据</param>
         public override void Serialize(BinaryWriter writer)
         {
             base.Serialize(writer);
@@ -144,9 +117,8 @@ namespace Neo.Core
         }
 
         /// <summary>
-        /// 变成json对象
+        /// Convert block to a JSON object containing a transaction list `tx`
         /// </summary>
-        /// <returns>返回json对象</returns>
         public override JObject ToJson()
         {
             JObject json = base.ToJson();
@@ -155,9 +127,8 @@ namespace Neo.Core
         }
 
         /// <summary>
-        /// 把区块对象变为只包含区块头和交易Hash的字节数组，去除交易数据
+        /// Convert the block object to a byte array that contains only the block header and the transaction hashes (with no transaction data)
         /// </summary>
-        /// <returns>返回只包含区块头和交易Hash的字节数组</returns>
         public byte[] Trim()
         {
             using (MemoryStream ms = new MemoryStream())
@@ -172,10 +143,10 @@ namespace Neo.Core
         }
 
         /// <summary>
-        /// 验证该区块是否合法
+        /// Verify that the block is valid
         /// </summary>
-        /// <param name="completely">是否同时验证区块中的每一笔交易</param>
-        /// <returns>返回该区块的合法性，返回true即为合法，否则，非法。</returns>
+        /// <param name="completely">Whether to verify all transactions in the block completely</param>
+        /// <returns>`true` if valid</returns>
         public bool Verify(bool completely)
         {
             if (!Verify()) return false;

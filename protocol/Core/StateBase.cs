@@ -22,6 +22,9 @@ namespace Neo.Core
             writer.Write(StateVersion);
         }
 
+        /// <summary>
+        /// Returns a JSON object containing the state version in the `version` property
+        /// </summary>
         public virtual JObject ToJson()
         {
             JObject json = new JObject();
