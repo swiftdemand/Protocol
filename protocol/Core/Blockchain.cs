@@ -74,9 +74,9 @@ namespace Neo.Core
         public static readonly Block GenesisBlock = new Block
         {
             PrevHash = UInt256.Zero,
-            Timestamp = (new DateTime(2016, 7, 15, 15, 8, 21, DateTimeKind.Utc)).ToTimestamp(),
+            Timestamp = (new DateTime(2018, 3, 26, 0, 0, 0, DateTimeKind.Utc)).ToTimestamp(),
             Index = 0,
-            ConsensusData = 2083236893, //向比特币致敬
+            ConsensusData = 577793340, 
             NextConsensus = GetConsensusAddress(StandbyValidators),
             Script = new Witness
             {
@@ -87,7 +87,7 @@ namespace Neo.Core
             {
                 new MinerTransaction
                 {
-                    Nonce = 2083236893,
+                    Nonce = 577793340,
                     Attributes = new TransactionAttribute[0],
                     Inputs = new CoinReference[0],
                     Outputs = new TransactionOutput[0],
