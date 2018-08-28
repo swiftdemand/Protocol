@@ -2,6 +2,8 @@
 using Neo.IO.Caching;
 using Neo.VM;
 using Neo.VM.Types;
+using System.Collections;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -10,6 +12,14 @@ namespace Neo.SmartContract
     public class ApplicationEngine : ExecutionEngine
     {
         #region Limits
+        /// <summary>
+        /// Max value for SHL and SHR
+        /// </summary>
+        private const int Max_SHL_SHR = ushort.MaxValue;
+        /// <summary>
+        /// Min value for SHL and SHR
+        /// </summary>
+        private const int Min_SHL_SHR = -Max_SHL_SHR;
         /// <summary>
         /// Set the max size allowed size for BigInteger
         /// </summary>
@@ -57,20 +67,38 @@ namespace Neo.SmartContract
 
         private bool CheckArraySize(OpCode nextInstruction)
         {
+            int size;
             switch (nextInstruction)
             {
                 case OpCode.PACK:
                 case OpCode.NEWARRAY:
                 case OpCode.NEWSTRUCT:
                     {
-                        if (EvaluationStack.Count == 0) return false;
-                        int size = (int)EvaluationStack.Peek().GetBigInteger();
-                        if (size > MaxArraySize) return false;
-                        return true;
+                        if (CurrentContext.EvaluationStack.Count == 0) return false;
+                        size = (int)CurrentContext.EvaluationStack.Peek().GetBigInteger();
                     }
+                    break;
+                case OpCode.SETITEM:
+                    {
+                        if (CurrentContext.EvaluationStack.Count < 3) return false;
+                        if (!(CurrentContext.EvaluationStack.Peek(2) is Map map)) return true;
+                        StackItem key = CurrentContext.EvaluationStack.Peek(1);
+                        if (key is ICollection) return false;
+                        if (map.ContainsKey(key)) return true;
+                        size = map.Count + 1;
+                    }
+                    break;
+                case OpCode.APPEND:
+                    {
+                        if (CurrentContext.EvaluationStack.Count < 2) return false;
+                        if (!(CurrentContext.EvaluationStack.Peek(1) is Array array)) return false;
+                        size = array.Count + 1;
+                    }
+                    break;
                 default:
                     return true;
             }
+            return size <= MaxArraySize;
         }
 
         private bool CheckInvocationStack(OpCode nextInstruction)
@@ -100,8 +128,8 @@ namespace Neo.SmartContract
                     }
                 case OpCode.CAT:
                     {
-                        if (EvaluationStack.Count < 2) return false;
-                        int length = EvaluationStack.Peek(0).GetByteArray().Length + EvaluationStack.Peek(1).GetByteArray().Length;
+                        if (CurrentContext.EvaluationStack.Count < 2) return false;
+                        int length = CurrentContext.EvaluationStack.Peek(0).GetByteArray().Length + CurrentContext.EvaluationStack.Peek(1).GetByteArray().Length;
                         if (length > MaxItemSize) return false;
                         return true;
                     }
@@ -128,9 +156,37 @@ namespace Neo.SmartContract
         {
             switch (nextInstruction)
             {
+                case OpCode.SHL:
+                    {
+                        BigInteger ishift = CurrentContext.EvaluationStack.Peek(0).GetBigInteger();
+
+                        if ((ishift > Max_SHL_SHR || ishift < Min_SHL_SHR))
+                            return false;
+
+                        BigInteger x = CurrentContext.EvaluationStack.Peek(1).GetBigInteger();
+
+                        if (!CheckBigInteger(x << (int)ishift))
+                            return false;
+
+                        break;
+                    }
+                case OpCode.SHR:
+                    {
+                        BigInteger ishift = CurrentContext.EvaluationStack.Peek(0).GetBigInteger();
+
+                        if ((ishift > Max_SHL_SHR || ishift < Min_SHL_SHR))
+                            return false;
+
+                        BigInteger x = CurrentContext.EvaluationStack.Peek(1).GetBigInteger();
+
+                        if (!CheckBigInteger(x >> (int)ishift))
+                            return false;
+
+                        break;
+                    }
                 case OpCode.INC:
                     {
-                        BigInteger x = EvaluationStack.Peek().GetBigInteger();
+                        BigInteger x = CurrentContext.EvaluationStack.Peek().GetBigInteger();
 
                         if (!CheckBigInteger(x) || !CheckBigInteger(x + 1))
                             return false;
@@ -139,7 +195,7 @@ namespace Neo.SmartContract
                     }
                 case OpCode.DEC:
                     {
-                        BigInteger x = EvaluationStack.Peek().GetBigInteger();
+                        BigInteger x = CurrentContext.EvaluationStack.Peek().GetBigInteger();
 
                         if (!CheckBigInteger(x) || (x.Sign <= 0 && !CheckBigInteger(x - 1)))
                             return false;
@@ -148,8 +204,8 @@ namespace Neo.SmartContract
                     }
                 case OpCode.ADD:
                     {
-                        BigInteger x2 = EvaluationStack.Peek().GetBigInteger();
-                        BigInteger x1 = EvaluationStack.Peek(1).GetBigInteger();
+                        BigInteger x2 = CurrentContext.EvaluationStack.Peek().GetBigInteger();
+                        BigInteger x1 = CurrentContext.EvaluationStack.Peek(1).GetBigInteger();
 
                         if (!CheckBigInteger(x2) || !CheckBigInteger(x1) || !CheckBigInteger(x1 + x2))
                             return false;
@@ -158,8 +214,8 @@ namespace Neo.SmartContract
                     }
                 case OpCode.SUB:
                     {
-                        BigInteger x2 = EvaluationStack.Peek().GetBigInteger();
-                        BigInteger x1 = EvaluationStack.Peek(1).GetBigInteger();
+                        BigInteger x2 = CurrentContext.EvaluationStack.Peek().GetBigInteger();
+                        BigInteger x1 = CurrentContext.EvaluationStack.Peek(1).GetBigInteger();
 
                         if (!CheckBigInteger(x2) || !CheckBigInteger(x1) || !CheckBigInteger(x1 - x2))
                             return false;
@@ -168,8 +224,8 @@ namespace Neo.SmartContract
                     }
                 case OpCode.MUL:
                     {
-                        BigInteger x2 = EvaluationStack.Peek().GetBigInteger();
-                        BigInteger x1 = EvaluationStack.Peek(1).GetBigInteger();
+                        BigInteger x2 = CurrentContext.EvaluationStack.Peek().GetBigInteger();
+                        BigInteger x1 = CurrentContext.EvaluationStack.Peek(1).GetBigInteger();
 
                         int lx1 = x1 == null ? 0 : x1.ToByteArray().Length;
 
@@ -185,8 +241,8 @@ namespace Neo.SmartContract
                     }
                 case OpCode.DIV:
                     {
-                        BigInteger x2 = EvaluationStack.Peek().GetBigInteger();
-                        BigInteger x1 = EvaluationStack.Peek(1).GetBigInteger();
+                        BigInteger x2 = CurrentContext.EvaluationStack.Peek().GetBigInteger();
+                        BigInteger x1 = CurrentContext.EvaluationStack.Peek(1).GetBigInteger();
 
                         if (!CheckBigInteger(x2) || !CheckBigInteger(x1))
                             return false;
@@ -195,8 +251,8 @@ namespace Neo.SmartContract
                     }
                 case OpCode.MOD:
                     {
-                        BigInteger x2 = EvaluationStack.Peek().GetBigInteger();
-                        BigInteger x1 = EvaluationStack.Peek(1).GetBigInteger();
+                        BigInteger x2 = CurrentContext.EvaluationStack.Peek().GetBigInteger();
+                        BigInteger x1 = CurrentContext.EvaluationStack.Peek(1).GetBigInteger();
 
                         if (!CheckBigInteger(x2) || !CheckBigInteger(x1))
                             return false;
@@ -220,10 +276,11 @@ namespace Neo.SmartContract
                     case OpCode.DUP:
                     case OpCode.OVER:
                     case OpCode.TUCK:
+                    case OpCode.NEWMAP:
                         size = 1;
                         break;
                     case OpCode.UNPACK:
-                        StackItem item = EvaluationStack.Peek();
+                        StackItem item = CurrentContext.EvaluationStack.Peek();
                         if (item is Array array)
                             size = array.Count;
                         else
@@ -231,7 +288,7 @@ namespace Neo.SmartContract
                         break;
                 }
             if (size == 0) return true;
-            size += EvaluationStack.Count + AltStack.Count;
+            size += InvocationStack.Sum(p => p.EvaluationStack.Count + p.AltStack.Count);
             if (size > MaxStackSize) return false;
             return true;
         }
@@ -311,11 +368,18 @@ namespace Neo.SmartContract
                 case OpCode.HASH256:
                     return 20;
                 case OpCode.CHECKSIG:
+                case OpCode.VERIFY:
                     return 100;
                 case OpCode.CHECKMULTISIG:
                     {
-                        if (EvaluationStack.Count == 0) return 1;
-                        int n = (int)EvaluationStack.Peek().GetBigInteger();
+                        if (CurrentContext.EvaluationStack.Count == 0) return 1;
+                        
+                        var item = CurrentContext.EvaluationStack.Peek();
+                        
+                        int n;
+                        if (item is Array array) n = array.Count;
+                        else n = (int)item.GetBigInteger();
+                        
                         if (n < 1) return 1;
                         return 100 * n;
                     }
@@ -333,17 +397,24 @@ namespace Neo.SmartContract
             string api_name = Encoding.ASCII.GetString(CurrentContext.Script, CurrentContext.InstructionPointer + 2, length);
             switch (api_name)
             {
+                case "System.Runtime.CheckWitness":
                 case "Neo.Runtime.CheckWitness":
                 case "AntShares.Runtime.CheckWitness":
                     return 200;
+                case "System.Blockchain.GetHeader":
                 case "Neo.Blockchain.GetHeader":
                 case "AntShares.Blockchain.GetHeader":
                     return 100;
+                case "System.Blockchain.GetBlock":
                 case "Neo.Blockchain.GetBlock":
                 case "AntShares.Blockchain.GetBlock":
                     return 200;
+                case "System.Blockchain.GetTransaction":
                 case "Neo.Blockchain.GetTransaction":
                 case "AntShares.Blockchain.GetTransaction":
+                    return 100;
+                case "System.Blockchain.GetTransactionHeight":
+                case "Neo.Blockchain.GetTransactionHeight":
                     return 100;
                 case "Neo.Blockchain.GetAccount":
                 case "AntShares.Blockchain.GetAccount":
@@ -354,6 +425,7 @@ namespace Neo.SmartContract
                 case "Neo.Blockchain.GetAsset":
                 case "AntShares.Blockchain.GetAsset":
                     return 100;
+                case "System.Blockchain.GetContract":
                 case "Neo.Blockchain.GetContract":
                 case "AntShares.Blockchain.GetContract":
                     return 100;
@@ -372,14 +444,14 @@ namespace Neo.SmartContract
                     return 5000L * 100000000L / ratio;
                 case "Neo.Asset.Renew":
                 case "AntShares.Asset.Renew":
-                    return (byte)EvaluationStack.Peek(1).GetBigInteger() * 5000L * 100000000L / ratio;
+                    return (byte)CurrentContext.EvaluationStack.Peek(1).GetBigInteger() * 5000L * 100000000L / ratio;
                 case "Neo.Contract.Create":
                 case "Neo.Contract.Migrate":
                 case "AntShares.Contract.Create":
                 case "AntShares.Contract.Migrate":
                     long fee = 100L;
 
-                    ContractPropertyState contract_properties = (ContractPropertyState)(byte)EvaluationStack.Peek(3).GetBigInteger();
+                    ContractPropertyState contract_properties = (ContractPropertyState)(byte)CurrentContext.EvaluationStack.Peek(3).GetBigInteger();
 
                     if (contract_properties.HasFlag(ContractPropertyState.HasStorage))
                     {
@@ -390,12 +462,15 @@ namespace Neo.SmartContract
                         fee += 500L;
                     }
                     return fee * 100000000L / ratio;
+                case "System.Storage.Get":
                 case "Neo.Storage.Get":
                 case "AntShares.Storage.Get":
                     return 100;
+                case "System.Storage.Put":
                 case "Neo.Storage.Put":
                 case "AntShares.Storage.Put":
-                    return ((EvaluationStack.Peek(1).GetByteArray().Length + EvaluationStack.Peek(2).GetByteArray().Length - 1) / 1024 + 1) * 1000;
+                    return ((CurrentContext.EvaluationStack.Peek(1).GetByteArray().Length + CurrentContext.EvaluationStack.Peek(2).GetByteArray().Length - 1) / 1024 + 1) * 1000;
+                case "System.Storage.Delete":
                 case "Neo.Storage.Delete":
                 case "AntShares.Storage.Delete":
                     return 100;
@@ -431,7 +506,7 @@ namespace Neo.SmartContract
             using (StateMachine service = new StateMachine(persisting_block, accounts, assets, contracts, storages))
             {
                 ApplicationEngine engine = new ApplicationEngine(TriggerType.Application, container, script_table, service, Fixed8.Zero, true);
-                engine.LoadScript(script, false);
+                engine.LoadScript(script);
                 engine.Execute();
                 return engine;
             }

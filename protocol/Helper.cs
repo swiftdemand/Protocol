@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -56,6 +57,13 @@ namespace Neo
         /// <summary>
         /// Convert a hexadecimal string to a byte array
         /// </summary>
+        internal static string GetVersion(this Assembly assembly)
+        {
+            CustomAttributeData attribute = assembly.CustomAttributes.FirstOrDefault(p => p.AttributeType == typeof(AssemblyInformationalVersionAttribute));
+            if (attribute == null) return assembly.GetName().Version.ToString(3);
+            return (string)attribute.ConstructorArguments[0].Value;
+        }
+
         public static byte[] HexToBytes(this string value)
         {
             if (value == null || value.Length == 0)

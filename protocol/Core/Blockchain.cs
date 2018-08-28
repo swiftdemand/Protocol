@@ -7,6 +7,7 @@ using Neo.VM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Neo.Core
 {
@@ -16,11 +17,15 @@ namespace Neo.Core
     public abstract class Blockchain : IDisposable, IScriptTable
     {
         public static event EventHandler<Block> PersistCompleted;
+        public static event EventHandler<Block> PersistUnlocked;
+
+        public CancellationTokenSource VerificationCancellationToken { get; protected set; } = new CancellationTokenSource();
+        public object PersistLock { get; } = new object();
 
         /// <summary>
         /// Interval in seconds at which each block will be generated
         /// </summary>
-        public const uint SecondsPerBlock = 15;
+        public static readonly uint SecondsPerBlock = Settings.Default.SecondsPerBlock;
         public const uint DecrementInterval = 2000000;
         public const uint MaxValidators = 1024;
         public static readonly uint[] GenerationAmount = { 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
@@ -475,11 +480,16 @@ namespace Neo.Core
         /// </summary>
         protected void OnPersistCompleted(Block block)
         {
+            PersistCompleted?.Invoke(this, block);
+        }
+
+        protected void OnPersistUnlocked(Block block)
+        {
             lock (_validators)
             {
                 _validators.Clear();
             }
-            PersistCompleted?.Invoke(this, block);
+            PersistUnlocked?.Invoke(this, block);
         }
 
         protected void ProcessAccountStateDescriptor(StateDescriptor descriptor, DataCache<UInt160, AccountState> accounts, DataCache<ECPoint, ValidatorState> validators, MetaDataCache<ValidatorsCountState> validators_count)
