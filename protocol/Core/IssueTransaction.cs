@@ -63,6 +63,11 @@ namespace Neo.Core
             {
                 AssetState asset = Blockchain.Default.GetAssetState(r.AssetId);
                 if (asset == null) return false;
+                if (asset.AssetType == AssetType.UtilityToken)
+                {
+                    if (asset.Available == Fixed8.MaxValue) continue;
+                    return false;
+                }
                 if (asset.Amount < Fixed8.Zero) continue;
                 Fixed8 quantity_issued = asset.Available + mempool.OfType<IssueTransaction>().Where(p => p != this).SelectMany(p => p.Outputs).Where(p => p.AssetId == r.AssetId).Sum(p => p.Value);
                 if (asset.Amount - quantity_issued < -r.Amount) return false;

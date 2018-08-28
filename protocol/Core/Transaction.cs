@@ -363,10 +363,6 @@ namespace Neo.Core
                     if (results_issue.Any(p => p.AssetId != Blockchain.UtilityToken.Hash))
                         return false;
                     break;
-                case TransactionType.IssueTransaction:
-                    if (results_issue.Any(p => p.AssetId == Blockchain.UtilityToken.Hash))
-                        return false;
-                    break;
                 default:
                     if (results_issue.Length > 0)
                         return false;
