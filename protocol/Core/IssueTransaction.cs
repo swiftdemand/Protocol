@@ -65,8 +65,8 @@ namespace Neo.Core
                 if (asset == null) return false;
                 if (asset.AssetType == AssetType.UtilityToken)
                 {
-                    if (asset.Available == Fixed8.MaxValue) continue;
-                    return false;
+                    if (asset.Available == Fixed8.MaxValue) return false;
+                    continue;
                 }
                 if (asset.Amount < Fixed8.Zero) continue;
                 Fixed8 quantity_issued = asset.Available + mempool.OfType<IssueTransaction>().Where(p => p != this).SelectMany(p => p.Outputs).Where(p => p.AssetId == r.AssetId).Sum(p => p.Value);
