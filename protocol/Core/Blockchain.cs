@@ -100,28 +100,6 @@ namespace Neo.Core
                     {
                         new TransactionOutput
                         {
-                            AssetId = GoverningToken.Hash,
-                            Value = GoverningToken.Amount,
-                            ScriptHash = Contract.CreateMultiSigRedeemScript(StandbyValidators.Length / 2 + 1, StandbyValidators).ToScriptHash()
-                        }
-                    },
-                    Scripts = new[]
-                    {
-                        new Witness
-                        {
-                            InvocationScript = new byte[0],
-                            VerificationScript = new[] { (byte)OpCode.PUSHT }
-                        }
-                    }
-                },
-                new IssueTransaction
-                {
-                    Attributes = new TransactionAttribute[0],
-                    Inputs = new CoinReference[0],
-                    Outputs = new[]
-                    {
-                        new TransactionOutput
-                        {
                             AssetId = UtilityToken.Hash,
                             Value = Fixed8.MaxValue,
                             ScriptHash = Contract.CreateMultiSigRedeemScript(StandbyValidators.Length / 2 + 1, StandbyValidators).ToScriptHash()
