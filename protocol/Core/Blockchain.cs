@@ -26,7 +26,9 @@ namespace Neo.Core
         /// Interval in seconds at which each block will be generated
         /// </summary>
         public static readonly uint SecondsPerBlock = Settings.Default.SecondsPerBlock;
+        public const uint DecrementInterval = 2000000;
         public const uint MaxValidators = 1024;
+        public static readonly uint[] GenerationAmount = { 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
         public static readonly TimeSpan TimePerBlock = TimeSpan.FromSeconds(SecondsPerBlock);
         /// <summary>
         /// 后备记账人列表
@@ -57,7 +59,7 @@ namespace Neo.Core
         {
             AssetType = AssetType.UtilityToken,
             Name = "[{\"lang\":\"zh-CN\",\"name\":\"小蚁币\"},{\"lang\":\"en\",\"name\":\"AntCoin\"}]",
-            Amount = Fixed8.FromDecimal(100000000),
+            Amount = Fixed8.FromDecimal(GenerationAmount.Sum(p => p) * DecrementInterval),
             Precision = 8,
             Owner = ECCurve.Secp256r1.Infinity,
             Admin = (new[] { (byte)OpCode.PUSHF }).ToScriptHash(),
@@ -71,7 +73,7 @@ namespace Neo.Core
         public static readonly Block GenesisBlock = new Block
         {
             PrevHash = UInt256.Zero,
-            Timestamp = (new DateTime(2018, 8, 28, 0, 0, 0, DateTimeKind.Utc)).ToTimestamp(),
+            Timestamp = (new DateTime(2018, 3, 26, 0, 0, 0, DateTimeKind.Utc)).ToTimestamp(),
             Index = 0,
             ConsensusData = 577793340, 
             NextConsensus = GetConsensusAddress(StandbyValidators),
@@ -102,28 +104,6 @@ namespace Neo.Core
                         {
                             AssetId = GoverningToken.Hash,
                             Value = GoverningToken.Amount,
-                            ScriptHash = Contract.CreateMultiSigRedeemScript(StandbyValidators.Length / 2 + 1, StandbyValidators).ToScriptHash()
-                        }
-                    },
-                    Scripts = new[]
-                    {
-                        new Witness
-                        {
-                            InvocationScript = new byte[0],
-                            VerificationScript = new[] { (byte)OpCode.PUSHT }
-                        }
-                    }
-                },
-                new IssueTransaction
-                {
-                    Attributes = new TransactionAttribute[0],
-                    Inputs = new CoinReference[0],
-                    Outputs = new[]
-                    {
-                        new TransactionOutput
-                        {
-                            AssetId = UtilityToken.Hash,
-                            Value = Fixed8.MaxValue,
                             ScriptHash = Contract.CreateMultiSigRedeemScript(StandbyValidators.Length / 2 + 1, StandbyValidators).ToScriptHash()
                         }
                     },
@@ -220,6 +200,36 @@ namespace Neo.Core
         private static Fixed8 CalculateBonusInternal(IEnumerable<SpentCoin> unclaimed)
         {
             Fixed8 amount_claimed = Fixed8.Zero;
+            foreach (var group in unclaimed.GroupBy(p => new { p.StartHeight, p.EndHeight }))
+            {
+                uint amount = 0;
+                uint ustart = group.Key.StartHeight / DecrementInterval;
+                if (ustart < GenerationAmount.Length)
+                {
+                    uint istart = group.Key.StartHeight % DecrementInterval;
+                    uint uend = group.Key.EndHeight / DecrementInterval;
+                    uint iend = group.Key.EndHeight % DecrementInterval;
+                    if (uend >= GenerationAmount.Length)
+                    {
+                        uend = (uint)GenerationAmount.Length;
+                        iend = 0;
+                    }
+                    if (iend == 0)
+                    {
+                        uend--;
+                        iend = DecrementInterval;
+                    }
+                    while (ustart < uend)
+                    {
+                        amount += (DecrementInterval - istart) * GenerationAmount[ustart];
+                        ustart++;
+                        istart = 0;
+                    }
+                    amount += (iend - istart) * GenerationAmount[ustart];
+                }
+                amount += (uint)(Default.GetSysFeeAmount(group.Key.EndHeight - 1) - (group.Key.StartHeight == 0 ? 0 : Default.GetSysFeeAmount(group.Key.StartHeight - 1)));
+                amount_claimed += group.Sum(p => p.Value) / 100000000 * amount;
+            }
             return amount_claimed;
         }
 
