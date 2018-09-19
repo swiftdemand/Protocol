@@ -56,11 +56,11 @@ namespace Neo.Core
         public static readonly RegisterTransaction UtilityToken = new RegisterTransaction
         {
             AssetType = AssetType.UtilityToken,
-            Name = "[{\"lang\":\"en\",\"name\":\"Swift\"}]",
-            Amount = Fixed8.MaxValue,
+            Name = "[{\"lang\":\"zh-CN\",\"name\":\"小蚁币\"},{\"lang\":\"en\",\"name\":\"AntCoin\"}]",
+            Amount = Fixed8.FromDecimal(100000000),
             Precision = 8,
             Owner = ECCurve.Secp256r1.Infinity,
-            Admin = (new[] { (byte)OpCode.PUSHT }).ToScriptHash(),
+            Admin = (new[] { (byte)OpCode.PUSHF }).ToScriptHash(),
             Attributes = new TransactionAttribute[0],
             Inputs = new CoinReference[0],
             Outputs = new TransactionOutput[0],
