@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Copyright>SwiftDemand Contributors</Copyright>
     <AssemblyTitle>Protocol</AssemblyTitle>
-    <Version>1.0.1-alpha7</Version>
+    <Version>1.0.1-alpha13</Version>
     <Authors>SwiftDemand Contributors</Authors>
     <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -34,17 +34,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Https" Version="2.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.1" />
-    <PackageReference Include="Neo.VM" Version="2.3.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net47' ">
-    <Reference Include="System.Security" />
+    <PackageReference Include="Akka" Version="1.3.8" />
+    <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Https" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
+    <PackageReference Include="Neo.VM" Version="2.3.1.1" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net47'">
