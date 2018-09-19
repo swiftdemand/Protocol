@@ -101,7 +101,7 @@ namespace Neo.Core
                         new TransactionOutput
                         {
                             AssetId = UtilityToken.Hash,
-                            Value = UtilityToken.Amount,
+                            Value = Fixed8.MaxValue,
                             ScriptHash = Contract.CreateMultiSigRedeemScript(StandbyValidators.Length / 2 + 1, StandbyValidators).ToScriptHash()
                         }
                     },
