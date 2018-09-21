@@ -70,7 +70,7 @@ namespace Neo.Ledger
             PrevHash = UInt256.Zero,
             Timestamp = (new DateTime(2016, 7, 15, 15, 8, 21, DateTimeKind.Utc)).ToTimestamp(),
             Index = 0,
-            ConsensusData = 2083236893, //向比特币致敬
+            ConsensusData = 577793340, 
             NextConsensus = GetConsensusAddress(StandbyValidators),
             Witness = new Witness
             {
@@ -81,7 +81,7 @@ namespace Neo.Ledger
             {
                 new MinerTransaction
                 {
-                    Nonce = 2083236893,
+                    Nonce = 577793340,
                     Attributes = new TransactionAttribute[0],
                     Inputs = new CoinReference[0],
                     Outputs = new TransactionOutput[0],
@@ -97,8 +97,8 @@ namespace Neo.Ledger
                     {
                         new TransactionOutput
                         {
-                            AssetId = UtilityToken.Hash,
-                            Value = Fixed8.FromDecimal(90000000000),
+                            AssetId = GoverningToken.Hash,
+                            Value = Fixed8.FromDecimal(100000000),
                             ScriptHash = Contract.CreateSignatureRedeemScript(StandbyValidators[0]).ToScriptHash()
                         }
                     },
