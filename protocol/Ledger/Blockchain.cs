@@ -97,8 +97,8 @@ namespace Neo.Ledger
                     {
                         new TransactionOutput
                         {
-                            AssetId = UtilityToken.Hash,
-                            Value = Fixed8.FromDecimal(10000000),
+                            AssetId = GoverningToken.Hash,
+                            Value = Fixed8.FromDecimal(100000000),
                             ScriptHash = Contract.CreateSignatureRedeemScript(StandbyValidators[0]).ToScriptHash()
                         }
                     },
