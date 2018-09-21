@@ -99,7 +99,7 @@ namespace Neo.Ledger
                         {
                             AssetId = GoverningToken.Hash,
                             Value = GoverningToken.Amount,
-                            ScriptHash = Contract.CreateMultiSigRedeemScript(StandbyValidators.Length / 2 + 1, StandbyValidators).ToScriptHash()
+                            ScriptHash = Contract.CreateSignatureRedeemScript(StandbyValidators[0]).ToScriptHash()
                         }
                     },
                     Witnesses = new[]
