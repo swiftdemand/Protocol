@@ -20,6 +20,8 @@ namespace Neo.Network.P2P.Payloads
             }
         }
 
+        public override Fixed8 NetworkFee => Fixed8.Zero;
+
         public IssueTransaction()
             : base(TransactionType.IssueTransaction)
         {
