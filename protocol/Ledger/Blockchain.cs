@@ -100,6 +100,12 @@ namespace Neo.Ledger
                             AssetId = GoverningToken.Hash,
                             Value = Fixed8.FromDecimal(100000000),
                             ScriptHash = Contract.CreateSignatureRedeemScript(StandbyValidators[0]).ToScriptHash()
+                        },
+                        new TransactionOutput
+                        {
+                            AssetId = UtilityToken.Hash,
+                            Value = Fixed8.FromDecimal(100000000),
+                            ScriptHash = Contract.CreateSignatureRedeemScript(StandbyValidators[0]).ToScriptHash()
                         }
                     },
                     Witnesses = new[]
