@@ -24,6 +24,8 @@ namespace Neo.Core
             }
         }
 
+        public override Fixed8 NetworkFee => Fixed8.Zero;
+
         public IssueTransaction()
             : base(TransactionType.IssueTransaction)
         {

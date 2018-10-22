@@ -103,8 +103,14 @@ namespace Neo.Core
                         new TransactionOutput
                         {
                             AssetId = GoverningToken.Hash,
-                            Value = GoverningToken.Amount,
-                            ScriptHash = Contract.CreateMultiSigRedeemScript(StandbyValidators.Length / 2 + 1, StandbyValidators).ToScriptHash()
+                            Value = Fixed8.FromDecimal(100000000),
+                            ScriptHash = Contract.CreateSignatureRedeemScript(StandbyValidators[0]).ToScriptHash()
+                        },
+                        new TransactionOutput
+                        {
+                            AssetId = UtilityToken.Hash,
+                            Value = Fixed8.FromDecimal(100000000),
+                            ScriptHash = Contract.CreateSignatureRedeemScript(StandbyValidators[0]).ToScriptHash()
                         }
                     },
                     Scripts = new[]
